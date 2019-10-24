@@ -8,9 +8,9 @@ param (
     # with GitHub.
     [string] $OauthTokenPath,
 
-    # The name of the label that signals that a pull request is eligible for
+    # When a pull request has a label with this name, it is considered for
     # merging.
-    [string] $EligibleLabel
+    [string] $RequestedMergeLabel
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,18 +29,22 @@ $OauthToken = Get-Content $OauthTokenPath
 $Credentials = [Octokit.Credentials]::new($OauthToken)
 $GitHub.Credentials = $Credentials
 
-function Get-EligiblePullRequests([string] $Owner, [string] $Repo) {
+function Get-PullRequestsRequestedMerge([string] $Owner, [string] $Repo) {
     $Request = $GitHub.PullRequest.GetAllForRepository($Owner, $Repo)
     Get-Result $Request `
         | % {
-            $Labels = $_.Labels | %{ $_.Name }
-            $Eligible = ($Labels -contains $EligibleLabel)
-            @{ Number = $_.Number; Title = $_.Title; Eligible = $Eligible }
+            $Labels = $_.Labels | % { $_.Name }
+            $RequestedMerge = $Labels -contains $RequestedMergeLabel
+            @{ Number         = $_.Number
+               Merged         = $_.Merged
+               Base           = $_.Base.Ref
+               Head           = $_.Head.Ref
+               RequestedMerge = $RequestedMerge }
         } `
-        | ? { $_.Eligible } `
+        | ? { $_.RequestedMerge -and !$_.Merged } `
         | Sort-Object -Property Number
 }
 
-Write-Output "Pull requests eligible for merging:"
-Get-EligiblePullRequests "chloekek" "norush-test" `
-    | % { Write-Output "#$($_.Number): $($_.Title)" }
+Write-Output "Pull requests requested to merge:"
+Get-PullRequestsRequestedMerge "chloekek" "norush-test" `
+    | % { Write-Output "#$($_.Number) @ $($_.Head) -> $($_.Base)" }
