@@ -2,11 +2,11 @@
 # merged, in the given repository.
 function Get-PullRequestsRequestedMerge {
     param (
-        [Octokit.GitHubClient] $GitHub,
+        [Octokit.GitHubClient] $Github,
         [string] $RepoOwner,
         [string] $RepoName
     )
-    $Request = $GitHub.PullRequest.GetAllForRepository($RepoOwner, $RepoName)
+    $Request = $Github.PullRequest.GetAllForRepository($RepoOwner, $RepoName)
     $Request.GetAwaiter().GetResult() `
         | % {
             $Labels = $_.Labels | % { $_.Name }
