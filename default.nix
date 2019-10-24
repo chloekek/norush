@@ -14,7 +14,7 @@ in
 
             makeWrapper ${pkgs.powershell}/bin/pwsh $out/bin/norush \
                 --prefix PSModulePath : $out/share/lib \
-                --add-flags $out/share/bin/norush.ps1 \
-                --add-flags -OctokitPath --add-flags ${octokit}
+                --set OCTOKIT ${octokit} \
+                --add-flags $out/share/bin/norush.ps1
         '';
     }
