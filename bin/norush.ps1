@@ -20,10 +20,6 @@ param (
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-function Get-Result($task) {
-    $task.GetAwaiter().GetResult()
-}
-
 Add-Type -Path "$OctokitPath/lib/Octokit.dll"
 
 $UserAgent = [Octokit.ProductHeaderValue]::new("norush")
@@ -33,22 +29,6 @@ $OauthToken = Get-Content $OauthTokenPath
 $Credentials = [Octokit.Credentials]::new($OauthToken)
 $GitHub.Credentials = $Credentials
 
-function Get-PullRequestsRequestedMerge() {
-    $Request = $GitHub.PullRequest.GetAllForRepository($RepoOwner, $RepoName)
-    Get-Result $Request `
-        | % {
-            $Labels = $_.Labels | % { $_.Name }
-            $RequestedMerge = $Labels -contains $RequestedMergeLabel
-            @{ Number         = $_.Number
-               Merged         = $_.Merged
-               Base           = $_.Base.Ref
-               Head           = $_.Head.Ref
-               RequestedMerge = $RequestedMerge }
-        } `
-        | ? { $_.RequestedMerge -and !$_.Merged } `
-        | Sort-Object -Property Number
-}
-
 Write-Output "Pull requests requested to merge:"
-Get-PullRequestsRequestedMerge `
+Get-PullRequestsRequestedMerge $GitHub $RepoOwner $RepoName `
     | % { Write-Output "#$($_.Number) @ $($_.Head) -> $($_.Base)" }

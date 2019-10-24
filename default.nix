@@ -7,12 +7,14 @@ in
         buildInputs = [pkgs.makeWrapper];
         phases = ["installPhase"];
         installPhase = ''
-            mkdir --parents $out/{bin,share/vendor}
+            mkdir --parents $out/{bin,share/lib}
 
-            cp --recursive ${./lib} $out/share/lib
+            cp --recursive ${./bin} $out/share/bin
+            cp --recursive ${./lib} $out/share/lib/Norush
 
             makeWrapper ${pkgs.powershell}/bin/pwsh $out/bin/norush \
-                --add-flags $out/share/lib/norush.ps1 \
+                --prefix PSModulePath : $out/share/lib \
+                --add-flags $out/share/bin/norush.ps1 \
                 --add-flags -OctokitPath --add-flags ${octokit}
         '';
     }
