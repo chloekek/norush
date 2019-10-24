@@ -8,6 +8,10 @@ param (
     # with GitHub.
     [string] $OauthTokenPath,
 
+    # The owner and name of the repository to monitor.
+    [string] $RepoOwner,
+    [string] $RepoName,
+
     # When a pull request has a label with this name, it is considered for
     # merging.
     [string] $RequestedMergeLabel
@@ -29,8 +33,8 @@ $OauthToken = Get-Content $OauthTokenPath
 $Credentials = [Octokit.Credentials]::new($OauthToken)
 $GitHub.Credentials = $Credentials
 
-function Get-PullRequestsRequestedMerge([string] $Owner, [string] $Repo) {
-    $Request = $GitHub.PullRequest.GetAllForRepository($Owner, $Repo)
+function Get-PullRequestsRequestedMerge() {
+    $Request = $GitHub.PullRequest.GetAllForRepository($RepoOwner, $RepoName)
     Get-Result $Request `
         | % {
             $Labels = $_.Labels | % { $_.Name }
@@ -46,5 +50,5 @@ function Get-PullRequestsRequestedMerge([string] $Owner, [string] $Repo) {
 }
 
 Write-Output "Pull requests requested to merge:"
-Get-PullRequestsRequestedMerge "chloekek" "norush-test" `
+Get-PullRequestsRequestedMerge `
     | % { Write-Output "#$($_.Number) @ $($_.Head) -> $($_.Base)" }
