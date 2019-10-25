@@ -1,5 +1,5 @@
-# Get all pull requests that are requested to be merged and are not already
-# merged, in the given repository.
+# Get all pull requests that are requested to be merged and are still open, in
+# the given repository.
 function Get-PullRequestsRequestedMerge {
     param (
         [Octokit.GitHubClient] $Github,
@@ -12,11 +12,11 @@ function Get-PullRequestsRequestedMerge {
             $Labels = $_.Labels | % { $_.Name }
             $RequestedMerge = $Labels -contains $RequestedMergeLabel
             @{ Number         = $_.Number
-               Merged         = $_.Merged
+               IsOpen         = $_.State -eq [Octokit.ItemState]::Open
                Base           = $_.Base.Ref
                Head           = $_.Head.Ref
                RequestedMerge = $RequestedMerge }
         } `
-        | ? { $_.RequestedMerge -and !$_.Merged } `
+        | ? { $_.RequestedMerge -and $_.IsOpen } `
         | Sort-Object -Property Number
 }
