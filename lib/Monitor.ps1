@@ -2,9 +2,9 @@
 # the given repository.
 function Get-PullRequestsRequestedMerge {
     param (
-        [Octokit.GitHubClient] $Github,
-        [string] $RepoOwner,
-        [string] $RepoName
+        [Parameter(Mandatory)] [Octokit.GitHubClient] $Github,
+        [Parameter(Mandatory)] [string] $RepoOwner,
+        [Parameter(Mandatory)] [string] $RepoName
     )
     $Request = $Github.PullRequest.GetAllForRepository($RepoOwner, $RepoName)
     $Request.GetAwaiter().GetResult() `

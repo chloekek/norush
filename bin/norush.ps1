@@ -1,19 +1,19 @@
 param (
     # Path to a file that contains the OAuth token to use for authenticating
     # with GitHub.
-    [string] $OauthTokenPath,
+    [Parameter(Mandatory)] [string] $OauthTokenPath,
 
     # The owner and name of the repository to monitor.
-    [string] $RepoOwner,
-    [string] $RepoName,
+    [Parameter(Mandatory)] [string] $RepoOwner,
+    [Parameter(Mandatory)] [string] $RepoName,
 
     # When a pull request has a label with this name, it is considered for
     # merging.
-    [string] $RequestedMergeLabel,
+    [Parameter(Mandatory)] [string] $RequestedMergeLabel,
 
     # The directory that contains the repository. The repository must have a
     # remote called origin.
-    [string] $Repository
+    [Parameter(Mandatory)] [string] $Repository
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,6 +29,7 @@ With-Location $Repository {
     # TODO: Gracefully handle Git commands failing. Do not leave the repository
     # in a dirty state.
 
+    Write-Output "FETCH"
     git fetch
 
     $Branches | % {

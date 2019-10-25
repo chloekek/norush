@@ -3,7 +3,9 @@
 Add-Type -Path "$env:OCTOKIT/lib/Octokit.dll"
 
 # Create a GitHub client with the given configuration.
-function Open-GithubClient([string] $OauthToken) {
+function Open-GithubClient {
+    param ([Parameter(Mandatory)] [string] $OauthToken)
+
     $UserAgent = [Octokit.ProductHeaderValue]::new("norush")
     $GitHub = [Octokit.GitHubClient]::new($UserAgent)
 
