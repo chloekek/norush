@@ -26,24 +26,19 @@ $PullRequests = Get-PullRequestsRequestedMerge $GitHub $RepoOwner $RepoName
 $Branches = $PullRequests | % { $_.Base, $_.Head } | Sort-Object | Get-Unique
 
 With-Location $Repository {
-    # TODO: Gracefully handle Git commands failing. Do not leave the repository
-    # in a dirty state.
+    # TODO: Handle errors thrown by Git-* functions.
 
     Write-Output "FETCH"
-    git fetch
+    Git-Fetch
 
     $Branches | % {
-        Write-Output "RESET $_ -> origin/$_"
-        git checkout $_
-        git clean -fd
-        git reset --hard "origin/$_"
+        Write-Output "RESET $_"
+        Git-Reset $_
     }
 
     $PullRequests | % {
         Write-Output "REBASE #$($_.Number) @ $($_.Head) -> $($_.Base)"
-        git checkout $_.Head
-        git rebase $_.Base
-        git push --force-with-lease origin $_.Head
+        Git-Rebase $_.Base $_.Head
 
         # TODO: Only merge if the rebase was a no-op. Otherwise, skip the merge
         # since we need to wait for CI.
@@ -51,8 +46,6 @@ With-Location $Repository {
         # TODO: Only merge if CI is good.
 
         Write-Output "MERGE #$($_.Number) @ $($_.Head) -> $($_.Base)"
-        git checkout $_.Base
-        git merge --no-edit --no-ff $_.Head
-        git push origin $_.Base
+        Git-Merge $_.Base $_.Head
     }
 }
