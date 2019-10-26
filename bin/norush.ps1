@@ -40,8 +40,9 @@ With-Location $Repository {
         Write-Output "REBASE #$($_.Number) @ $($_.Head) -> $($_.Base)"
         Git-Rebase $_.Base $_.Head
 
-        # TODO: Only merge if the rebase was a no-op. Otherwise, skip the merge
-        # since we need to wait for CI.
+        if (!(Git-CanFastForward $_.Base $_.Head)) {
+            Return
+        }
 
         # TODO: Only merge if CI is good.
 

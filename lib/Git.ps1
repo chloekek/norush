@@ -70,3 +70,13 @@ function Git-Merge {
         Throw "git push"
     }
 }
+
+function Git-CanFastForward {
+    param (
+        [Parameter(Mandatory)] [string] $Base,
+        [Parameter(Mandatory)] [string] $Head
+    )
+
+    git merge-base --is-ancestor $Base $Head
+    $?
+}

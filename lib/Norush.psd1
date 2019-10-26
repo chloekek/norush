@@ -8,6 +8,7 @@
     );
     FunctionsToExport = @(
         "Get-PullRequestsRequestedMerge",
+        "Git-CanFastForward",
         "Git-Fetch",
         "Git-Merge",
         "Git-Rebase",
