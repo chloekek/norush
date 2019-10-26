@@ -40,10 +40,6 @@ With-Location $Repository {
         Write-Output "REBASE #$($_.Number) @ $($_.Head) -> $($_.Base)"
         Git-Rebase $_.Base $_.Head
 
-        if (!(Git-CanFastForward $_.Base $_.Head)) {
-            Return
-        }
-
         # TODO: Only merge if CI is good.
 
         Write-Output "MERGE #$($_.Number) @ $($_.Head) -> $($_.Base)"
